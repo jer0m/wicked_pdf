@@ -25,7 +25,12 @@ class WickedPdf
   end
 
   def pdf_from_string(string, options={})
-    command = "\"#{@exe_path}\" #{parse_options(options)} #{'-q ' unless on_windows?}- - " # -q for no errors on stdout
+    if WickedPdf.config.present? and WickedPdf.config[:xvfb]
+      command = "DISPLAY=':0.0' "
+    else
+      command = "" 
+    end
+    command += "\"#{@exe_path}\" #{parse_options(options)} #{'-q ' unless on_windows?}- - " # -q for no errors on stdout
     print_command(command) if in_development_mode?
     pdf, err = Open3.popen3(command) do |stdin, stdout, stderr|
       stdin.binmode
